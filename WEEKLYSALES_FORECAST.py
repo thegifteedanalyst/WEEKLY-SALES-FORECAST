@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from PIL import Image
 import pickle
-from datetime import timedelta
+
 
 
 # Load the model
