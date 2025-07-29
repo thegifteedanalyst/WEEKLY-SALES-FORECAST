@@ -7,11 +7,11 @@ from datetime import timedelta
 
 
 # Load the model
-with open(("weekly_forecast_model.pkl",'rb') as file:
+with open('weekly_forecast_model.pkl','rb') as file:
     model = pickle.load(file)
 
 # Load model
-with open('("weekly_forecast_model.pkl",'rb') as file:
+with open('weekly_forecast_model.pkl','rb') as file:
     model = pickle.load(file)
 
 # Load image (optional)
