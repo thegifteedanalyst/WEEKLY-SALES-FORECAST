@@ -1,9 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-from datetime import timedelta
 from PIL import Image
 
 # Load the model
@@ -26,35 +23,6 @@ st.markdown("""
 This interactive dashboard predicts the **next 7 days of total revenue** based on historical daily sales data using a **Linear Regression** model.
 """)
 
-# Load data
-@st.cache_data
-def load_data():
-    df = pd.read_csv("Desktop/DATA TYPES/100 Sales Records.csv")
-    df["Order Date"] = pd.to_datetime(df["Order Date"])
-    df = df.groupby("Order Date")[["Total Revenue"]].sum().reset_index()
-    df = df.sort_values("Order Date")
-    df["Days Since"] = (df["Order Date"] - df["Order Date"].min()).dt.days
-    return df
-
-# Predict future revenue
-def predict_sales(df, forecast_days):
-    X = df[["Days Since"]]
-    y = df["Total Revenue"]
-
-    model = LinearRegression()
-    model.fit(X, y)
-
-    last_day = df["Days Since"].max()
-    future_days = pd.DataFrame({"Days Since": range(last_day+1, last_day+1+forecast_days)})
-    predictions = model.predict(future_days)
-    future_dates = [df["Order Date"].max() + timedelta(days=i) for i in range(1, forecast_days + 1)]
-
-    forecast_df = pd.DataFrame({
-        "Date": future_dates,
-        "Predicted Revenue": predictions
-    })
-
-    return forecast_df
 
 # Load data
 df = load_data()
