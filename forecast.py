@@ -4,15 +4,10 @@ import numpy as np
 from PIL import Image
 import pickle
 
-
-
 # Load the model
 with open('weekly_forecast_model.pkl','rb') as file:
     model = pickle.load(file)
 
-# Load model
-with open('weekly_forecast_model.pkl','rb') as file:
-    model = pickle.load(file)
 
 # Load image (optional)
 try:
