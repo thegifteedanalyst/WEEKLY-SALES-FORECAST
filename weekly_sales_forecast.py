@@ -3,67 +3,87 @@ import pandas as pd
 import numpy as np
 from PIL import Image
 import pickle
+from datetime import timedelta
+import matplotlib.pyplot as plt
 
 # Load the model
 with open('weekly_sales_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
-# Page configuration
-st.set_page_config(page_title="🛒 Supermarket Sales Forecast", layout="wide")
+# Load model
+with open('weekly_sales_model.pkl', 'rb') as file:
+    model = pickle.load(file)
 
-# Load image (optional - add 'supermarket.png' to your folder)
+# Load image (optional)
 try:
     image = Image.open("supermarket.png")
     st.image(image, caption="Predict Tomorrow's Revenue Today!", use_container_width=True)
 except:
-    pass  # Skip image if not found
+    pass
 
-# App title
+st.set_page_config(page_title="🛒 Supermarket Sales Forecast", layout="wide")
 st.title("📈 Supermarket Sales Forecast")
-st.markdown("""
-This interactive dashboard predicts the **next 7 days of total revenue** based on historical daily sales data using a **Linear Regression** model.
-""")
 
+st.markdown("Upload your daily sales CSV file. Columns required: **Order Date** and **Total Revenue**")
 
-# Load data
-df = load_data()
+# Upload data
+uploaded_file = st.file_uploader("📤 Upload Daily Sales Data (.csv)", type=["csv"])
 
-# UI layout
-col1, col2 = st.columns([2, 1])
-with col1:
+# Function to load data
+def load_data(file):
+    df = pd.read_csv(file)
+    df["Order Date"] = pd.to_datetime(df["Order Date"])
+    df = df.sort_values("Order Date")
+    return df
+
+# Function to predict future sales
+def predict_sales(df, forecast_days=7):
+    last_date = df["Order Date"].max()
+    future_dates = [last_date + timedelta(days=i) for i in range(1, forecast_days + 1)]
+
+    # Features for prediction (example: using day of week)
+    features = pd.DataFrame({
+        "DayOfWeek": [d.weekday() for d in future_dates]
+    })
+
+    predicted_revenue = model.predict(features)
+    forecast_df = pd.DataFrame({
+        "Date": future_dates,
+        "Predicted Revenue": predicted_revenue
+    })
+    return forecast_df
+
+if uploaded_file:
+    df = load_data(uploaded_file)
+
     st.subheader("📊 Historical Sales Trend")
     st.line_chart(df.set_index("Order Date")["Total Revenue"])
 
-with col2:
-    forecast_days = st.slider("📅 Select Forecast Period (Days)", min_value=3, max_value=30, value=7)
+    forecast_days = st.slider("📅 Select Forecast Period", 3, 30, 7)
 
-# Prediction trigger
-if st.button("🔮 Generate Forecast"):
-    forecast = predict_sales(df, forecast_days)
+    if st.button("🔮 Generate Forecast"):
+        forecast = predict_sales(df, forecast_days)
 
-    st.markdown("---")
-    st.subheader("📅 Predicted Revenue for Next {} Days".format(forecast_days))
-    st.dataframe(forecast)
+        st.subheader(f"📅 Forecast for Next {forecast_days} Days")
+        st.dataframe(forecast)
 
-    # Combined chart
-    combined_df = pd.concat([
-        df[["Order Date", "Total Revenue"]].rename(columns={"Order Date": "Date", "Total Revenue": "Revenue"}),
-        forecast.rename(columns={"Predicted Revenue": "Revenue"})
-    ])
-    combined_df["Label"] = ["Actual"] * len(df) + ["Forecast"] * len(forecast)
- # Plot
-    fig, ax = plt.subplots(figsize=(10, 4))
-    for label, data in combined_df.groupby("Label"):
-        ax.plot(data["Date"], data["Revenue"], label=label)
-    ax.set_title("📉 Actual vs Forecasted Revenue")
-    ax.legend()
-    st.pyplot(fig)
+        combined_df = pd.concat([
+            df[["Order Date", "Total Revenue"]].rename(columns={"Order Date": "Date", "Total Revenue": "Revenue"}),
+            forecast.rename(columns={"Date": "Date", "Predicted Revenue": "Revenue"})
+        ])
+        combined_df["Label"] = ["Actual"] * len(df) + ["Forecast"] * len(forecast)
 
-    with st.expander("🔍 Forecast Summary"):
-        st.json({
-            "Start Date": str(forecast['Date'].min().date()),
-            "End Date": str(forecast['Date'].max().date()),
-            "Average Forecasted Revenue": round(forecast["Predicted Revenue"].mean(), 2),
-            "Total Forecasted Revenue": round(forecast["Predicted Revenue"].sum(), 2)
-        })
+        fig, ax = plt.subplots(figsize=(10, 4))
+        for label, group in combined_df.groupby("Label"):
+            ax.plot(group["Date"], group["Revenue"], label=label)
+        ax.set_title("📉 Actual vs Forecasted Revenue")
+        ax.legend()
+        st.pyplot(fig)
 
+        with st.expander("🔍 Forecast Summary"):
+            st.json({
+                "Start Date": str(forecast['Date'].min().date()),
+                "End Date": str(forecast['Date'].max().date()),
+                "Average Forecasted Revenue": round(forecast["Predicted Revenue"].mean(), 2),
+                "Total Forecasted Revenue": round(forecast["Predicted Revenue"].sum(), 2)
+            })
