@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 import pickle
 from datetime import timedelta
-import matplotlib.pyplot as plt
+
 
 # Load the model
 with open('weekly_sales_model.pkl', 'rb') as file:
