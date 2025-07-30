@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from PIL import Image
 import pickle
-import matplotlib.pyplot as plt
 from datetime import timedelta
 
 
