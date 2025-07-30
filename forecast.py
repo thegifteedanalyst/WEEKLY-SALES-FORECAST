@@ -79,7 +79,7 @@ if uploaded_file:
             ax.plot(group["Date"], group["Revenue"], label=label)
         ax.set_title("📉 Actual vs Forecasted Revenue")
         ax.legend()
-        ax..grid(True)
+        ax.grid(True)
         st.pyplot(fig)
 
         with st.expander("🔍 Forecast Summary"):
