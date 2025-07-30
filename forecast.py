@@ -1,4 +1,5 @@
-import streamlit as st
+
+    import streamlit as st
 import pandas as pd
 import numpy as np
 from PIL import Image
@@ -73,15 +74,16 @@ if uploaded_file:
             forecast.rename(columns={"Date": "Date", "Predicted Revenue": "Revenue"})
         ])
         combined_df["Label"] = ["Actual"] * len(df) + ["Forecast"] * len(forecast)
-
+    
         fig, ax = plt.subplots(figsize=(10, 4))
         for label, group in combined_df.groupby("Label"):
-            ax.plot(group["Date"], group["Revenue"], label=label)
+                    ax.plot(group["Date"], group["Revenue"], label=label, linestyle='--' if label == "Forecast" else '-', marker='o')
         ax.set_title("📉 Actual vs Forecasted Revenue")
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Revenue")
         ax.legend()
-        ax.grid(True)
         st.pyplot(fig)
-
+  
         with st.expander("🔍 Forecast Summary"):
             st.json({
                 "Start Date": str(forecast['Date'].min().date()),
