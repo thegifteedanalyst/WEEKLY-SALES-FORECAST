@@ -3,7 +3,7 @@ import pandas as pd
 from PIL import Image
 import pickle
 from datetime import timedelta
-import matplotlib.pyplot as plt
+
 
 # Set Streamlit page config
 st.set_page_config(page_title="🛒 Supermarket Sales Forecast", layout="wide")
