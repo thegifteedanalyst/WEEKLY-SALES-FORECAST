@@ -5,10 +5,6 @@ from PIL import Image
 import pickle
 from datetime import timedelta
 
-# Page config
-st.set_page_config(page_title="🛒 Supermarket Sales Forecast", layout="wide")
-st.title("📈 Supermarket Sales Forecast")
-
 # Load model
 with open('weekly_forecast_model.pkl', 'rb') as file:
     model = pickle.load(file)
@@ -19,6 +15,9 @@ try:
     st.image(image, caption="Predict Tomorrow's Revenue Today!", use_container_width=True)
 except:
     pass
+    # Page config
+st.set_page_config(page_title="🛒 Supermarket Sales Forecast", layout="wide")
+st.title("📈 Supermarket Sales Forecast")
 
 # Instruction
 st.markdown("Upload your daily sales CSV file. Columns required: **Order Date** and **Total Revenue**")
